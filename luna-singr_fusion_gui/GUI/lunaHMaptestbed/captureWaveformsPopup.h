@@ -30,6 +30,7 @@ namespace lunaHMaptestbed {
 			InitializeComponent();
 			findPorts();
 			wfCap_run = false;
+			this->comboBox2->SelectedIndex = 0;
 			//
 			//TODO: Add the constructor code here
 			//
@@ -91,6 +92,9 @@ namespace lunaHMaptestbed {
 	private: System::Windows::Forms::ToolStripMenuItem^  changeAxesWFToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  clearChartWFToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  resetCOMPortWFToolStripMenuItem;
+	private: System::ComponentModel::BackgroundWorker^  backgroundWorker1;
+	private: System::Windows::Forms::Label^  label1;
+	private: System::Windows::Forms::ComboBox^  comboBox2;
 
 	private: bool wfCap_run;
 
@@ -132,6 +136,9 @@ namespace lunaHMaptestbed {
 			this->changeAxesWFToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->clearChartWFToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->resetCOMPortWFToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->backgroundWorker1 = (gcnew System::ComponentModel::BackgroundWorker());
+			this->label1 = (gcnew System::Windows::Forms::Label());
+			this->comboBox2 = (gcnew System::Windows::Forms::ComboBox());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->ch_DisplayWaveforms))->BeginInit();
 			this->menuStrip1->SuspendLayout();
 			this->SuspendLayout();
@@ -335,11 +342,40 @@ namespace lunaHMaptestbed {
 			this->resetCOMPortWFToolStripMenuItem->Text = L"Reset COM Port";
 			this->resetCOMPortWFToolStripMenuItem->Click += gcnew System::EventHandler(this, &captureWaveformsPopup::resetCOMPortWFToolStripMenuItem_Click);
 			// 
+			// backgroundWorker1
+			// 
+			this->backgroundWorker1->WorkerReportsProgress = true;
+			this->backgroundWorker1->WorkerSupportsCancellation = true;
+			// 
+			// label1
+			// 
+			this->label1->AutoSize = true;
+			this->label1->Location = System::Drawing::Point(740, 93);
+			this->label1->Name = L"label1";
+			this->label1->Size = System::Drawing::Size(92, 13);
+			this->label1->TabIndex = 53;
+			this->label1->Text = L"Select a WF type:";
+			// 
+			// comboBox2
+			// 
+			this->comboBox2->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->comboBox2->FormattingEnabled = true;
+			this->comboBox2->Items->AddRange(gcnew cli::array< System::Object^  >(4) {
+				L"Adjacent Average", L"Low Pass Filter", L"Differential Filter",
+					L"Trigger"
+			});
+			this->comboBox2->Location = System::Drawing::Point(805, 110);
+			this->comboBox2->Name = L"comboBox2";
+			this->comboBox2->Size = System::Drawing::Size(138, 21);
+			this->comboBox2->TabIndex = 54;
+			// 
 			// captureWaveformsPopup
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(956, 612);
+			this->Controls->Add(this->comboBox2);
+			this->Controls->Add(this->label1);
 			this->Controls->Add(this->label8);
 			this->Controls->Add(this->tb_SaveFileLocation);
 			this->Controls->Add(this->tb_saveFile);
@@ -425,6 +461,7 @@ private: System::Void bCaptureWFs_Click(System::Object^  sender, System::EventAr
 	{
 		this->bCaptureWFs->Text = "Capture Waveforms";
 		this->textBox6->Text = "Stop button pressed.";
+		backgroundWorker1->CancelAsync();
 		Application::DoEvents();
 		return;
 	}
@@ -446,63 +483,72 @@ private: System::Void bCaptureWFs_Click(System::Object^  sender, System::EventAr
 		}
 		else //if the port is open, 
 		{
-			this->textBox6->Text = (this->comboBox1->Text) + " open. Getting data.";
+			this->textBox6->Text = (this->comboBox1->Text) + " connected.";
 			Application::DoEvents();
 		}
 	}
 
+	// Make sure the user has selected a type of WF
+	// This tells us what mode to select in the uZ
+	// Just make the default be AA WFs
+	if (this->comboBox2->SelectedIndex < 0)
+		this->comboBox2->SelectedIndex = 0;
+
+	String^ s_WFChoice = this->comboBox2->SelectedIndex.ToString();	// Type cast the wf selection as a string
+
 	std::ofstream outputFileWF;
-	if (wfCap_run && (chk_atf->Checked || chk_stf->Checked))
-	{
-		if (this->tb_SaveFileLocation->Text == String::Empty)
-		{
-			this->textBox6->Text = "Please choose a file save or append location.";
-			this->bCaptureWFs->Text = "Capture Waveforms";
-			wfCap_run = !wfCap_run;
-			return;
-		}
+	//if (wfCap_run && (chk_atf->Checked || chk_stf->Checked))
+	//{
+	//	if (this->tb_SaveFileLocation->Text == String::Empty)
+	//	{
+	//		this->textBox6->Text = "Please choose a file save or append location.";
+	//		this->bCaptureWFs->Text = "Capture Waveforms";
+	//		wfCap_run = !wfCap_run;
+	//		return;
+	//	}
 
-		/* get the filename */
-		std::string str_fileNamewf;
-		String^ s_fileNamewf = this->saveFileDialog1->FileName;
-		str_fileNamewf = msclr::interop::marshal_as<std::string>(s_fileNamewf);
+	//	/* get the filename */
+	//	std::string str_fileNamewf;
+	//	String^ s_fileNamewf = this->saveFileDialog1->FileName;
+	//	str_fileNamewf = msclr::interop::marshal_as<std::string>(s_fileNamewf);
 
-		outputFileWF.open(str_fileNamewf, std::ios::app);
+	//	outputFileWF.open(str_fileNamewf, std::ios::app);
 
-		if (!outputFileWF)	//if we can't open the file
-		{
-			this->textBox6->Text = "Could not access the specified file.";
-			this->bCaptureWFs->Text = "Capture Waveforms";
-			wfCap_run = !wfCap_run;
-			return;
-		}
+	//	if (!outputFileWF)	//if we can't open the file
+	//	{
+	//		this->textBox6->Text = "Could not access the specified file.";
+	//		this->bCaptureWFs->Text = "Capture Waveforms";
+	//		wfCap_run = !wfCap_run;
+	//		return;
+	//	}
 
-	}
+	//}
 
 	//Next, need to send commands over the port to the uZ board
-	String^ message1 = "10";	// Select the mode
-	String^ message6 = "\n";// Confirm selection 
 
 	if (this->serialPort1->IsOpen)
 	{
-		this->serialPort1->WriteLine(message1);	//send us the data
-		Sleep(2000);
-		this->serialPort1->WriteLine(message6);
-		Sleep(2000);
+		this->serialPort1->WriteLine("0");	//change mode at the main menu
+		Sleep(500);
+		this->serialPort1->WriteLine(s_WFChoice);	//choose the WF type
+		Sleep(500);
+		this->serialPort1->WriteLine("6");	//select case 6 from main menu
 	}
 	else
 	{
 		this->textBox6->Text = "Port is not open.";
+		this->bCaptureWFs->Text = "Capture Waveforms";
+		wfCap_run = !wfCap_run;
 		Application::DoEvents();
 		return;
 	}
 
-	//Need to wait momentarily while the system responds, then we want to receive data from the port
+	//set variables
 	int loops = 0;
 	int index = 0;
 	double wfTimeBins = 0.0;
 	const int wfBins = 4096;	
-	int wfArray[wfBins]{  };	//Just guess how many wf bins will be sent
+	int wfArray[wfBins]{  };	//Just guess 4096 wf ints will be sent; init array to 0's
 	int numWaveforms = 0;
 
 	//Set up the chart
@@ -510,11 +556,11 @@ private: System::Void bCaptureWFs_Click(System::Object^  sender, System::EventAr
 
 	while (wfCap_run)
 	{
-
 		/* Try and read in the data from the serial port */
 		try
 		{
 			Int32::TryParse(this->serialPort1->ReadLine(), wfArray[index]);
+			index++;
 			wfTimeBins += 4.0 / 1000.0;
 		}
 		/* If it times out, catch that and close the connection */
@@ -536,10 +582,10 @@ private: System::Void bCaptureWFs_Click(System::Object^  sender, System::EventAr
 		}
 
 		/* Write the waveform values to a file */
-		outputFileWF << std::setw(11) << wfTimeBins
-			<< std::setw(11) << wfArray[index]
-			<< std::endl;
-		++index;
+//		outputFileWF << std::setw(11) << wfTimeBins
+//			<< std::setw(11) << wfArray[index]
+//			<< std::endl;
+//		++index;
 
 		if (index > wfBins-1)	//reset variables to allow us to re-use our array
 		{
@@ -548,7 +594,7 @@ private: System::Void bCaptureWFs_Click(System::Object^  sender, System::EventAr
 			this->ch_DisplayWaveforms->Series["Series1"]->Points->Clear();
 			++numWaveforms;
 			this->textBox6->Text = numWaveforms + " waveforms plotted.";
-			outputFileWF << "000" << std::endl;
+			//outputFileWF << "000" << std::endl;
 		}
 	}
 

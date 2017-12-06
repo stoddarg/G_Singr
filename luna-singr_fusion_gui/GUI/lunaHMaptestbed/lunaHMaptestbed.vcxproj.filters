@@ -52,5 +52,8 @@
     <EmbeddedResource Include="changeAxesPopUp.resx">
       <Filter>Resource Files</Filter>
     </EmbeddedResource>
+    <EmbeddedResource Include="setEnergyCutsPopUp.resx">
+      <Filter>Resource Files</Filter>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
