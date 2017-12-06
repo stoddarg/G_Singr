@@ -4,5 +4,5 @@
   setEnergyCutsPopUp.cpp
   Generating Code...
   .NETFramework,Version=v4.5.2.AssemblyAttributes.cpp
-  lunaHMaptestbed.vcxproj -> C:\Users\Graham\Desktop\singr_test-master\singr_test-master\luna-singr_fusion_gui\GUI\Debug\lunaHMaptestbed.exe
-  lunaHMaptestbed.vcxproj -> C:\Users\Graham\Desktop\singr_test-master\singr_test-master\luna-singr_fusion_gui\GUI\Debug\lunaHMaptestbed.pdb (Full PDB)
+  captureWaveformsPopup.obj : /DEBUG:FASTLINK is not supported when managed code is present; restarting link with /DEBUG:FULL
+  lunaHMaptestbed.vcxproj -> C:\Users\GStoddard\Desktop\G_Singr-master\G_Singr-master\luna-singr_fusion_gui\GUI\Debug\lunaHMaptestbed.exe

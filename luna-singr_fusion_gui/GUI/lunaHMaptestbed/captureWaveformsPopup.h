@@ -81,7 +81,7 @@ namespace lunaHMaptestbed {
 
 	private: System::Windows::Forms::Label^  label7;
 	private: System::Windows::Forms::CheckBox^  chk_stf;
-	private: System::Windows::Forms::CheckBox^  chk_atf;
+
 
 	private: System::Windows::Forms::Button^  tb_saveFile;
 	private: System::Windows::Forms::TextBox^  tb_SaveFileLocation;
@@ -126,7 +126,6 @@ namespace lunaHMaptestbed {
 			this->b_closeWFwindow = (gcnew System::Windows::Forms::Button());
 			this->label7 = (gcnew System::Windows::Forms::Label());
 			this->chk_stf = (gcnew System::Windows::Forms::CheckBox());
-			this->chk_atf = (gcnew System::Windows::Forms::CheckBox());
 			this->tb_saveFile = (gcnew System::Windows::Forms::Button());
 			this->tb_SaveFileLocation = (gcnew System::Windows::Forms::TextBox());
 			this->label8 = (gcnew System::Windows::Forms::Label());
@@ -258,26 +257,16 @@ namespace lunaHMaptestbed {
 			// chk_stf
 			// 
 			this->chk_stf->AutoSize = true;
-			this->chk_stf->Location = System::Drawing::Point(13, 559);
+			this->chk_stf->Location = System::Drawing::Point(781, 359);
 			this->chk_stf->Name = L"chk_stf";
-			this->chk_stf->Size = System::Drawing::Size(107, 17);
+			this->chk_stf->Size = System::Drawing::Size(106, 17);
 			this->chk_stf->TabIndex = 47;
-			this->chk_stf->Text = L"Save to New File";
+			this->chk_stf->Text = L"Save WF To File";
 			this->chk_stf->UseVisualStyleBackColor = true;
-			// 
-			// chk_atf
-			// 
-			this->chk_atf->AutoSize = true;
-			this->chk_atf->Location = System::Drawing::Point(13, 583);
-			this->chk_atf->Name = L"chk_atf";
-			this->chk_atf->Size = System::Drawing::Size(94, 17);
-			this->chk_atf->TabIndex = 48;
-			this->chk_atf->Text = L"Append to File";
-			this->chk_atf->UseVisualStyleBackColor = true;
 			// 
 			// tb_saveFile
 			// 
-			this->tb_saveFile->Location = System::Drawing::Point(135, 559);
+			this->tb_saveFile->Location = System::Drawing::Point(12, 559);
 			this->tb_saveFile->Name = L"tb_saveFile";
 			this->tb_saveFile->Size = System::Drawing::Size(107, 41);
 			this->tb_saveFile->TabIndex = 49;
@@ -287,16 +276,16 @@ namespace lunaHMaptestbed {
 			// 
 			// tb_SaveFileLocation
 			// 
-			this->tb_SaveFileLocation->Location = System::Drawing::Point(261, 583);
+			this->tb_SaveFileLocation->Location = System::Drawing::Point(125, 575);
 			this->tb_SaveFileLocation->Name = L"tb_SaveFileLocation";
 			this->tb_SaveFileLocation->ReadOnly = true;
-			this->tb_SaveFileLocation->Size = System::Drawing::Size(470, 20);
+			this->tb_SaveFileLocation->Size = System::Drawing::Size(611, 20);
 			this->tb_SaveFileLocation->TabIndex = 50;
 			// 
 			// label8
 			// 
 			this->label8->AutoSize = true;
-			this->label8->Location = System::Drawing::Point(258, 567);
+			this->label8->Location = System::Drawing::Point(125, 559);
 			this->label8->Name = L"label8";
 			this->label8->Size = System::Drawing::Size(98, 13);
 			this->label8->TabIndex = 51;
@@ -379,7 +368,6 @@ namespace lunaHMaptestbed {
 			this->Controls->Add(this->label8);
 			this->Controls->Add(this->tb_SaveFileLocation);
 			this->Controls->Add(this->tb_saveFile);
-			this->Controls->Add(this->chk_atf);
 			this->Controls->Add(this->chk_stf);
 			this->Controls->Add(this->label7);
 			this->Controls->Add(this->b_closeWFwindow);
@@ -497,35 +485,34 @@ private: System::Void bCaptureWFs_Click(System::Object^  sender, System::EventAr
 	String^ s_WFChoice = this->comboBox2->SelectedIndex.ToString();	// Type cast the wf selection as a string
 
 	std::ofstream outputFileWF;
-	//if (wfCap_run && (chk_atf->Checked || chk_stf->Checked))
-	//{
-	//	if (this->tb_SaveFileLocation->Text == String::Empty)
-	//	{
-	//		this->textBox6->Text = "Please choose a file save or append location.";
-	//		this->bCaptureWFs->Text = "Capture Waveforms";
-	//		wfCap_run = !wfCap_run;
-	//		return;
-	//	}
+	if (wfCap_run && chk_stf->Checked)
+	{
+		if (this->tb_SaveFileLocation->Text == String::Empty)
+		{
+			this->textBox6->Text = "Please choose a file save location.";
+			this->bCaptureWFs->Text = "Capture Waveforms";
+			wfCap_run = !wfCap_run;
+			return;
+		}
 
-	//	/* get the filename */
-	//	std::string str_fileNamewf;
-	//	String^ s_fileNamewf = this->saveFileDialog1->FileName;
-	//	str_fileNamewf = msclr::interop::marshal_as<std::string>(s_fileNamewf);
+		/* get the filename */
+		std::string str_fileNamewf;
+		String^ s_fileNamewf = this->saveFileDialog1->FileName;
+		str_fileNamewf = msclr::interop::marshal_as<std::string>(s_fileNamewf);
 
-	//	outputFileWF.open(str_fileNamewf, std::ios::app);
+		outputFileWF.open(str_fileNamewf, std::ios::app);
 
-	//	if (!outputFileWF)	//if we can't open the file
-	//	{
-	//		this->textBox6->Text = "Could not access the specified file.";
-	//		this->bCaptureWFs->Text = "Capture Waveforms";
-	//		wfCap_run = !wfCap_run;
-	//		return;
-	//	}
+		if (!outputFileWF)	//if we can't open the file
+		{
+			this->textBox6->Text = "Could not access the specified file.";
+			this->bCaptureWFs->Text = "Capture Waveforms";
+			wfCap_run = !wfCap_run;
+			return;
+		}
 
-	//}
+	}
 
 	//Next, need to send commands over the port to the uZ board
-
 	if (this->serialPort1->IsOpen)
 	{
 		this->serialPort1->WriteLine("0");	//change mode at the main menu
@@ -581,12 +568,6 @@ private: System::Void bCaptureWFs_Click(System::Object^  sender, System::EventAr
 				Application::DoEvents();
 		}
 
-		/* Write the waveform values to a file */
-//		outputFileWF << std::setw(11) << wfTimeBins
-//			<< std::setw(11) << wfArray[index]
-//			<< std::endl;
-//		++index;
-
 		if (index > wfBins-1)	//reset variables to allow us to re-use our array
 		{
 			index = 0;
@@ -594,7 +575,13 @@ private: System::Void bCaptureWFs_Click(System::Object^  sender, System::EventAr
 			this->ch_DisplayWaveforms->Series["Series1"]->Points->Clear();
 			++numWaveforms;
 			this->textBox6->Text = numWaveforms + " waveforms plotted.";
-			//outputFileWF << "000" << std::endl;
+			
+			//save the WF in the file specified by the user, if they want one
+			for (index = 0; index < wfBins; index++){
+				outputFileWF << wfArray[index] / 16 << std::endl;
+			}
+			outputFileWF << "000" << std::endl;
+			index = 0;
 		}
 	}
 

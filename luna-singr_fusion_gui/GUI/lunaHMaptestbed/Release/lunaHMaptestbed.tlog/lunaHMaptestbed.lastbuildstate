@@ -1,2 +1,2 @@
-#TargetFrameworkVersion=v4.5.2:PlatformToolSet=v140:EnableManagedIncrementalBuild=true:VCToolArchitecture=Native32Bit:WindowsTargetPlatformVersion=8.1
-Release|Win32|K:\Research Files\NASA\C16-018 LunaH-Map\Software Development\LunaH GUI\lunaHMaptestbed3-10-17_workingVersion\|
+#TargetFrameworkVersion=v4.5.2:PlatformToolSet=v141:EnableManagedIncrementalBuild=true:VCToolArchitecture=Native32Bit:WindowsTargetPlatformVersion=10.0.16299.0
+Release|Win32|C:\Users\GStoddard\Desktop\G_Singr-master\G_Singr-master\luna-singr_fusion_gui\GUI\|
