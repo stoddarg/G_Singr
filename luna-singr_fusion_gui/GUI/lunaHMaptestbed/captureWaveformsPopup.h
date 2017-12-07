@@ -196,10 +196,10 @@ namespace lunaHMaptestbed {
 			// 
 			// textBox6
 			// 
-			this->textBox6->Location = System::Drawing::Point(781, 382);
+			this->textBox6->Location = System::Drawing::Point(743, 382);
 			this->textBox6->Name = L"textBox6";
 			this->textBox6->ReadOnly = true;
-			this->textBox6->Size = System::Drawing::Size(139, 20);
+			this->textBox6->Size = System::Drawing::Size(200, 20);
 			this->textBox6->TabIndex = 32;
 			// 
 			// comboBox1
@@ -213,9 +213,9 @@ namespace lunaHMaptestbed {
 			// 
 			// bChangeThreshold
 			// 
-			this->bChangeThreshold->Location = System::Drawing::Point(778, 298);
+			this->bChangeThreshold->Location = System::Drawing::Point(743, 298);
 			this->bChangeThreshold->Name = L"bChangeThreshold";
-			this->bChangeThreshold->Size = System::Drawing::Size(140, 49);
+			this->bChangeThreshold->Size = System::Drawing::Size(200, 49);
 			this->bChangeThreshold->TabIndex = 30;
 			this->bChangeThreshold->Text = L"Change Trigger Threshold";
 			this->bChangeThreshold->UseVisualStyleBackColor = true;
@@ -223,9 +223,9 @@ namespace lunaHMaptestbed {
 			// 
 			// bCaptureWFs
 			// 
-			this->bCaptureWFs->Location = System::Drawing::Point(778, 408);
+			this->bCaptureWFs->Location = System::Drawing::Point(743, 408);
 			this->bCaptureWFs->Name = L"bCaptureWFs";
-			this->bCaptureWFs->Size = System::Drawing::Size(140, 49);
+			this->bCaptureWFs->Size = System::Drawing::Size(200, 49);
 			this->bCaptureWFs->TabIndex = 28;
 			this->bCaptureWFs->Text = L"Capture Waveforms";
 			this->bCaptureWFs->UseVisualStyleBackColor = true;
@@ -357,6 +357,7 @@ namespace lunaHMaptestbed {
 			this->comboBox2->Name = L"comboBox2";
 			this->comboBox2->Size = System::Drawing::Size(138, 21);
 			this->comboBox2->TabIndex = 54;
+			this->comboBox2->SelectedIndexChanged += gcnew System::EventHandler(this, &captureWaveformsPopup::comboBox2_SelectedIndexChanged);
 			// 
 			// captureWaveformsPopup
 			// 
@@ -440,6 +441,8 @@ private: System::Void bCaptureWFs_Click(System::Object^  sender, System::EventAr
 	/* This button click will send commands, over the serial port, to the uZ board and the devkit code running on the FPGA
 	* to choose waveform data, enable the system, and send the data */
 	String^ retMessage = "";
+
+
 	wfCap_run = !wfCap_run;		//init'd as false
 	if (wfCap_run)
 	{
@@ -482,8 +485,6 @@ private: System::Void bCaptureWFs_Click(System::Object^  sender, System::EventAr
 	if (this->comboBox2->SelectedIndex < 0)
 		this->comboBox2->SelectedIndex = 0;
 
-	String^ s_WFChoice = this->comboBox2->SelectedIndex.ToString();	// Type cast the wf selection as a string
-
 	std::ofstream outputFileWF;
 	if (wfCap_run && chk_stf->Checked)
 	{
@@ -516,9 +517,28 @@ private: System::Void bCaptureWFs_Click(System::Object^  sender, System::EventAr
 	if (this->serialPort1->IsOpen)
 	{
 		this->serialPort1->WriteLine("0");	//change mode at the main menu
-		Sleep(500);
-		this->serialPort1->WriteLine(s_WFChoice);	//choose the WF type
-		Sleep(500);
+		Sleep(1000);
+		
+		switch (this->comboBox2->SelectedIndex)
+		{
+		case 0:
+			this->serialPort1->WriteLine("0");
+			break;
+		case 1:
+			this->serialPort1->WriteLine("1");
+			break;
+		case 2:
+			this->serialPort1->WriteLine("2");
+			break;
+		case 3:
+			this->serialPort1->WriteLine("3");
+			break;
+		default:
+			this->serialPort1->WriteLine("0");
+			this->textBox6->Text = "Automatically chose AA WFs.";
+			break;
+		}
+		Sleep(1000);
 		this->serialPort1->WriteLine("6");	//select case 6 from main menu
 	}
 	else
@@ -585,7 +605,7 @@ private: System::Void bCaptureWFs_Click(System::Object^  sender, System::EventAr
 		}
 	}
 
-	this->serialPort1->WriteLine("q");	//quit the data stream
+	this->serialPort1->WriteLine("q\r");	//quit the data stream
 	Sleep(1000);
 
 	this->serialPort1->DiscardInBuffer();	//just get rid of the buffer because we can't keep up and don't want it
@@ -656,5 +676,48 @@ private: System::Void resetCOMPortWFToolStripMenuItem_Click(System::Object^  sen
 	this->textBox6->Text = "Please re-select a port.";
 	return;
 }
+private: System::Void comboBox2_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) {
+	//change the axes depending on what index is selected in the combo box
+	//Indices:
+	//
+	//1: AA - x: 0-10, y: 1900-2300
+	//2: LPF- x: 0-10, y: 50 - 200 ???
+	//3: DFF- x: 0-10, y: 400 - 1000
+	//4: Trg- x: 0-10, y: 400 - 1000
+
+	if (this->comboBox2->SelectedIndex == 0)	//AA Waveforms
+	{
+		this->ch_DisplayWaveforms->ChartAreas[0]->AxisX->Minimum = 0;
+		this->ch_DisplayWaveforms->ChartAreas[0]->AxisX->Maximum = 10;
+		this->ch_DisplayWaveforms->ChartAreas[0]->AxisY->Minimum = 1900;
+		this->ch_DisplayWaveforms->ChartAreas[0]->AxisY->Maximum = 2300;
+	}
+	else if (this->comboBox2->SelectedIndex == 1)	//LPF Waveforms
+	{
+		this->ch_DisplayWaveforms->ChartAreas[0]->AxisX->Minimum = 0;
+		this->ch_DisplayWaveforms->ChartAreas[0]->AxisX->Maximum = 10;
+		this->ch_DisplayWaveforms->ChartAreas[0]->AxisY->Minimum = 50;
+		this->ch_DisplayWaveforms->ChartAreas[0]->AxisY->Maximum = 200;
+	}
+	else if (this->comboBox2->SelectedIndex == 2)	//DFF Waveforms
+	{
+		this->ch_DisplayWaveforms->ChartAreas[0]->AxisX->Minimum = 0;
+		this->ch_DisplayWaveforms->ChartAreas[0]->AxisX->Maximum = 10;
+		this->ch_DisplayWaveforms->ChartAreas[0]->AxisY->Minimum = 400;
+		this->ch_DisplayWaveforms->ChartAreas[0]->AxisY->Maximum = 1000;
+	}
+	else if (this->comboBox2->SelectedIndex == 3)	//Trigger Waveforms
+	{
+		this->ch_DisplayWaveforms->ChartAreas[0]->AxisX->Minimum = 0;
+		this->ch_DisplayWaveforms->ChartAreas[0]->AxisX->Maximum = 10;
+		this->ch_DisplayWaveforms->ChartAreas[0]->AxisY->Minimum = 400;
+		this->ch_DisplayWaveforms->ChartAreas[0]->AxisY->Maximum = 1000;
+	}
+	else
+	{
+		this->comboBox2->SelectedIndex = 0;
+	}
+}
+
 };
 }
