@@ -1,6 +1,6 @@
-﻿  captureWaveformsPopup.cpp
+﻿  MyForm.cpp
+  captureWaveformsPopup.cpp
   changeAxesPopUp.cpp
-  MyForm.cpp
   setEnergyCutsPopUp.cpp
   Generating Code...
   .NETFramework,Version=v4.5.2.AssemblyAttributes.cpp

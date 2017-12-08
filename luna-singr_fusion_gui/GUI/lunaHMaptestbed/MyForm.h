@@ -1559,6 +1559,11 @@ private: System::Void backgroundWorker1_ProgressChanged(System::Object^  sender,
 	//}
 	//ii = 0; //reset variable
 
+	//get the ints from the textboxes
+	int i_short = int::Parse(this->tb_short->Text);
+	int i_long = int::Parse(this->tb_long->Text);
+	int i_full = int::Parse(this->tb_full->Text);
+
 	this->tb_updates->Text = "Processing.";
 	this->checkBox2->Checked = true;
 
@@ -1578,9 +1583,9 @@ private: System::Void backgroundWorker1_ProgressChanged(System::Object^  sender,
 		else
 			bl_avg = (bl4 + bl3 + bl2 + bl1) / 4.0;
 		aablavgArray[eventIndex] = bl_avg;
-		si = eventsSorted[eventIndex].aaShortInt / 16.0 - (bl_avg * 73.0);
-		li = eventsSorted[eventIndex].aaLongInt / 16.0 - (bl_avg * 169.0);
-		fi = eventsSorted[eventIndex].aaFullInt / 16.0 - (bl_avg * 1551.0);
+		si = eventsSorted[eventIndex].aaShortInt / 16.0 - (bl_avg * (((i_short + 52) / 4) + 38));
+		li = eventsSorted[eventIndex].aaLongInt / 16.0 - (bl_avg * (((i_long + 52) / 4) + 38));
+		fi = eventsSorted[eventIndex].aaFullInt / 16.0 - (bl_avg * (((i_full + 52) / 4) + 38));
 		if (si > 0 && li > 0)
 			psd = si / (li - si);
 		energy = 1.0 * fi + 0.0;
@@ -1631,9 +1636,9 @@ private: System::Void backgroundWorker1_ProgressChanged(System::Object^  sender,
 			<< std::setw(11) << eventsSorted[index].lpfTTLSignal << '\t'
 			<< std::setw(16) << ((eventsSorted[index].dffTimeSmall * 128.0e-9) + (eventsSorted[index].dffTimeBig * 549.7558139)) << '\t'
 			<< std::setw(11) << (eventsSorted[index].aaBaselineInt) << '\t'
-			<< std::setw(11) << (eventsSorted[index].aaShortInt / 16.0 - aablavgArray[index] * 73.0) << '\t'
-			<< std::setw(11) << (eventsSorted[index].aaLongInt / 16.0 - aablavgArray[index] * 169.0) << '\t'
-			<< std::setw(11) << (eventsSorted[index].aaFullInt / 16.0 - aablavgArray[index] * 1551.0) << '\t'
+			<< std::setw(11) << (eventsSorted[index].aaShortInt / 16.0) << '\t'
+			<< std::setw(11) << (eventsSorted[index].aaLongInt / 16.0) << '\t'
+			<< std::setw(11) << (eventsSorted[index].aaFullInt / 16.0) << '\t'
 			<< std::setw(11) << (eventsSorted[index].lpfBaselineInt / 16.0) << '\t'
 			<< std::setw(11) << (eventsSorted[index].lpfShortInt / 16.0) << '\t'
 			<< std::setw(11) << (eventsSorted[index].lpfFullInt / 16.0) << '\t'
